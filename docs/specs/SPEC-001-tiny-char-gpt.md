@@ -23,8 +23,13 @@ Plain PyTorch, one file per concern under `src/slm/`. See ADR-0001.
 
 ## Acceptance criteria
 - [x] Unit tests pass: shapes, initial loss ~ ln(vocab), causality, overfit one batch
-- [ ] Baseline config reaches val loss < 1.7 on Tiny Shakespeare (logged in `docs/experiments/log.md`)
-- [ ] Samples show learned structure (speaker names, line breaks, mostly real words)
+- [x] Baseline config reaches val loss < 1.7 on Tiny Shakespeare: **1.689** at iter 3000 (`docs/experiments/log.md`, run `shakespeare_char`)
+- [x] Samples show learned structure (speaker names, line breaks, mostly real words). Example at temperature 0.8, seed 1:
+  ```
+  ROMEO:
+  Came, let so me us leave at eyes a blood,
+  But that you wars come mother mine, and long,
+  ```
 
 ## Verification plan
 `pytest -q`, then `run-experiment` with `configs/shakespeare_char.toml`.
