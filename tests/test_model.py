@@ -23,11 +23,17 @@ def test_forward_shapes():
 
 
 def test_initial_loss_is_near_uniform():
-    """An untrained model should be ~uniformly unsure: loss ~= ln(vocab_size)."""
+    """An untrained model should be ~uniformly unsure: loss ~= ln(vocab_size).
+
+    Targets must be independent of inputs: with weight tying, an untrained model
+    already slightly favors predicting its own input token, so targets == inputs
+    would give a loss noticeably below ln(vocab_size).
+    """
     torch.manual_seed(0)
     model = GPT(tiny_cfg())
     idx = torch.randint(0, 20, (8, 16))
-    _, loss = model(idx, idx)
+    targets = torch.randint(0, 20, (8, 16))
+    _, loss = model(idx, targets)
     assert abs(loss.item() - math.log(20)) < 0.3
 
 
