@@ -1,0 +1,13 @@
+.git
+**/__pycache__
+**/*.egg-info
+.pytest_cache
+.ruff_cache
+data
+runs
+*.pt
+frontend/node_modules
+frontend/dist
+docs
+plugins
+.claude

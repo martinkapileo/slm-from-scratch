@@ -88,6 +88,7 @@ def train(cfg: Config) -> dict[str, float]:
     out = Path(t.out_dir)
     out.mkdir(parents=True, exist_ok=True)
     (out / "config.json").write_text(json.dumps(cfg.to_dict(), indent=2))
+    tok.save(out / "tokenizer.json")  # makes the run directory self-contained
     metrics_f = open(out / "metrics.jsonl", "w")
 
     best_val = float("inf")
@@ -100,7 +101,10 @@ def train(cfg: Config) -> dict[str, float]:
 
         if it % t.eval_interval == 0 or it == t.max_iters:
             last = estimate_loss(model, splits, cfg, device)
-            row = {"iter": it, "lr": lr, **last, "elapsed_s": round(time.time() - t0, 1)}
+            row = {
+                "iter": it, "lr": lr, **last,
+                "elapsed_s": round(time.time() - t0, 1), "params": model.num_params(),
+            }
             metrics_f.write(json.dumps(row) + "\n")
             metrics_f.flush()
             print(f"iter {it:5d} | train {last['train']:.4f} | val {last['val']:.4f} | lr {lr:.2e}")

@@ -7,6 +7,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+from dataclasses import dataclass
 from pathlib import Path
 
 import torch
@@ -14,6 +15,48 @@ import torch
 from slm.config import ModelConfig
 from slm.data import CharTokenizer
 from slm.model import GPT
+
+
+@dataclass
+class LoadedRun:
+    model: GPT
+    tokenizer: CharTokenizer
+    config: dict
+    iter: int
+
+
+def load_run(run_dir: str | Path) -> LoadedRun:
+    """Load the best checkpoint and its tokenizer from a run directory.
+
+    The tokenizer is read from the run directory when present (runs are then
+    self-contained), falling back to the training data_dir for older runs.
+    """
+    run_dir = Path(run_dir)
+    ckpt = torch.load(run_dir / "ckpt.pt", map_location="cpu", weights_only=True)
+    tok_path = run_dir / "tokenizer.json"
+    if not tok_path.exists():
+        tok_path = Path(ckpt["config"]["train"]["data_dir"]) / "tokenizer.json"
+    model = GPT(ModelConfig(**ckpt["config"]["model"]))
+    model.load_state_dict(ckpt["model"])
+    model.eval()
+    return LoadedRun(model, CharTokenizer.load(tok_path), ckpt["config"], ckpt.get("iter", -1))
+
+
+def generate_text(
+    run: LoadedRun,
+    prompt: str,
+    tokens: int,
+    temperature: float = 0.8,
+    top_k: int | None = None,
+    seed: int = 0,
+) -> str:
+    torch.manual_seed(seed)
+    unknown = sorted({c for c in prompt if c not in run.tokenizer.stoi})
+    if unknown:
+        raise ValueError(f"prompt has characters not in the vocabulary: {unknown}")
+    idx = torch.tensor([run.tokenizer.encode(prompt or "\n")], dtype=torch.long)
+    out = run.model.generate(idx, tokens, temperature=temperature, top_k=top_k)
+    return run.tokenizer.decode(out[0].tolist())
 
 
 def main() -> None:
@@ -25,19 +68,8 @@ def main() -> None:
     p.add_argument("--top-k", type=int, default=None)
     p.add_argument("--seed", type=int, default=0)
     args = p.parse_args()
-
-    torch.manual_seed(args.seed)
-    ckpt = torch.load(Path(args.run) / "ckpt.pt", map_location="cpu")
-    model_cfg = ModelConfig(**ckpt["config"]["model"])
-    tok = CharTokenizer.load(Path(ckpt["config"]["train"]["data_dir"]) / "tokenizer.json")
-
-    model = GPT(model_cfg)
-    model.load_state_dict(ckpt["model"])
-    model.eval()
-
-    idx = torch.tensor([tok.encode(args.prompt)], dtype=torch.long)
-    out = model.generate(idx, args.tokens, temperature=args.temperature, top_k=args.top_k)
-    print(tok.decode(out[0].tolist()))
+    run = load_run(args.run)
+    print(generate_text(run, args.prompt, args.tokens, args.temperature, args.top_k, args.seed))
 
 
 if __name__ == "__main__":

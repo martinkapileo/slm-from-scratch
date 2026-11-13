@@ -1,0 +1,12 @@
+services:
+  dashboard:
+    build: .
+    image: slm-dashboard:latest
+    ports:
+      - "8000:8000"
+    volumes:
+      # Read-only: the dashboard never modifies training outputs.
+      # Training runs on the host write here and appear live in the UI.
+      - ./runs:/app/runs:ro
+      - ./data:/app/data:ro
+    restart: unless-stopped

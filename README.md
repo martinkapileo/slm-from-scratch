@@ -17,6 +17,16 @@ python -m slm.train --config configs/shakespeare_char.toml
 python -m slm.sample --run runs/shakespeare_char --prompt "ROMEO:"
 ```
 
+## Results dashboard
+
+A React dashboard with live loss curves, run configs and text generation:
+
+```bash
+docker compose up --build   # then open http://localhost:8000
+```
+
+`runs/` is mounted read-only, so runs you train on the host show up live.
+
 ## Roadmap
 
 | Phase | Focus |

@@ -8,6 +8,7 @@ so **explain the why** behind changes, not just the what.
 ## Layout
 - `src/slm/` — library code: `config.py`, `data.py` (tokenizer, batching), `model.py` (GPT), `train.py`, `sample.py`
 - `configs/*.toml` — every hyperparameter lives here, never hard-coded
+- `src/slm/dashboard/api.py` — FastAPI read-only API over `runs/`; `frontend/` — React + TS dashboard (Vite)
 - `scripts/` — one-off CLIs (data prep, plugin build)
 - `tests/` — pytest; `tests/test_model.py` encodes core transformer properties
 - `docs/sdlc.md` — **the workflow every change follows. Read it before starting work.**
@@ -23,6 +24,8 @@ so **explain the why** behind changes, not just the what.
 - Train: `python -m slm.train --config configs/shakespeare_char.toml`
 - Sample: `python -m slm.sample --run runs/shakespeare_char --prompt "ROMEO:"`
 - Rebuild plugin after editing skills/agents: `python scripts/build_plugin.py`
+- Dashboard (container): `docker compose up --build` → http://localhost:8000
+- Dashboard (dev): `uvicorn slm.dashboard.api:app --reload --port 8000` and `cd frontend && npm install && npm run dev` → http://localhost:5173
 
 ## Rules
 - Follow `docs/sdlc.md`: no feature code without a spec in `docs/specs/`; significant
