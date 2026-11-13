@@ -1,0 +1,13 @@
+{
+  "name": "slm-from-scratch",
+  "owner": {
+    "name": "mkapileo12"
+  },
+  "plugins": [
+    {
+      "name": "slm-sdlc",
+      "source": "./plugins/slm-sdlc",
+      "description": "Agentic SDLC for ML projects: spec, ADR, experiment, evaluation and ship skills, plus ML and architecture reviewer agents."
+    }
+  ]
+}

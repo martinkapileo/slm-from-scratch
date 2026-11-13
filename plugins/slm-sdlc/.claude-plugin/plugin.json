@@ -1,0 +1,10 @@
+{
+  "name": "slm-sdlc",
+  "version": "0.1.0",
+  "description": "Agentic SDLC for ML projects: spec, ADR, experiment, evaluation and ship skills, plus ML and architecture reviewer agents.",
+  "author": {
+    "name": "mkapileo12"
+  },
+  "repository": "https://github.com/mkapileo12/slm-from-scratch",
+  "license": "MIT"
+}

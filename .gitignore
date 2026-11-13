@@ -1,0 +1,12 @@
+__pycache__/
+*.egg-info/
+.venv/
+.pytest_cache/
+.ruff_cache/
+
+# Data and training outputs are large and reproducible from scripts + configs.
+data/
+runs/
+*.pt
+
+.claude/settings.local.json
